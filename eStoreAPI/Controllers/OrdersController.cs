@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BusinessObject.Models;
 using DataAccess.DataBase;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace eStoreAPI.Controllers
 {
@@ -23,9 +24,10 @@ namespace eStoreAPI.Controllers
 
         // GET: api/Orders
         [HttpGet]
+        [EnableQuery]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Orders.ToListAsync();
+            return Ok(_context.Orders.ToList().AsQueryable());
         }
 
         // GET: api/Orders/5
