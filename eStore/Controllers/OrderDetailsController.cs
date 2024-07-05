@@ -27,10 +27,26 @@ namespace eStore.Controllers
             this._url = "https://localhost:7221/api/OrderDetails";
         }
 
+        public async Task<IActionResult> Statistic(DateTime? start, DateTime? end)
+        {
+            var urlTemp = this._url;
+/*             urlTemp = $"{this._url}?$filter= Order.OrderDate gt {start} and Order.OrderDate lt {end}";
+            if(start == null || end == null)
+            {
+                urlTemp = this._url;
+            }*/
+            var orderDetails = await ApiHandler.DeserializeApiResponse<IEnumerable<OrderDetail>>(urlTemp, HttpMethod.Get);
+            if (!(start == null || end == null))
+            {
+                orderDetails = orderDetails.Where(a=> DateTime.Compare( a.Order.OrderDate, start.Value) > 0 && DateTime.Compare(a.Order.OrderDate, end.Value) < 0).ToList();
+            }
+            return View(orderDetails);
+        }
+
         // GET: OrderDetails
         public async Task<IActionResult> Index(int id)
         {
-            var urlTemp = $"{this._url}?$filter = OrderId eq {id}";
+            var urlTemp = $"{this._url}?$filter= OrderId eq {id}";
 
             var orderDetails = await ApiHandler.DeserializeApiResponse<IEnumerable<OrderDetail>>(urlTemp, HttpMethod.Get);
             
@@ -140,17 +156,16 @@ namespace eStore.Controllers
         }
 
         // GET: OrderDetails/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? orderid, int? productid)
         {
-            if (id == null)
+            if (productid == null || orderid == null)
             {
                 return NotFound();
             }
 
-            var orderDetail = await _context.OrderDetails
-                .Include(o => o.Order)
-                .Include(o => o.Product)
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var urlTemp = $"{this._url}/{orderid}/{productid}";
+            var orderDetail = await ApiHandler.DeserializeApiResponse<OrderDetail>(urlTemp, HttpMethod.Get);
+
             if (orderDetail == null)
             {
                 return NotFound();
@@ -162,12 +177,14 @@ namespace eStore.Controllers
         // POST: OrderDetails/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? orderid, int? productid)
         {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
+            var urlTemp = $"{this._url}/{orderid}/{productid}";
+
+            var orderDetail = await ApiHandler.DeserializeApiResponse<OrderDetail>(urlTemp, HttpMethod.Get);
             if (orderDetail != null)
             {
-                _context.OrderDetails.Remove(orderDetail);
+                await ApiHandler.DeserializeApiResponse<OrderDetail>(urlTemp, HttpMethod.Delete);
             }
 
             await _context.SaveChangesAsync();

@@ -9,7 +9,23 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+
+<form id="form" method="get">
+    <div class="form-group">
+        <label for="">Enter product name</label>
+        <input type="text"
+               class="form-control" name="" id="search-productName" aria-describedby="helpId" placeholder="">
+        <small class="form-text text-muted">Help text</small>
+    </div>
+    <div class="form-group">
+        <label for="">Enter unit price</label>
+        <input type="number" class="form-control" name="" id="search-unitPrice" aria-describedby="helpId" placeholder="">
+        <small class="form-text text-muted">Help text</small>
+    </div>
+    <button type="submit">Search</button>
+</form>
+
+<table id="table" class="table">
     <thead>
         <tr>
             <th>
@@ -28,9 +44,10 @@
                 @Html.DisplayNameFor(model => model.Category)
             </th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="body">
 @foreach (var item in Model) {
         <tr>
             <td>
@@ -53,7 +70,69 @@
                 <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
             </td>
+            <td>
+                <a href="">Add To Cart</a>
+            </td>
         </tr>
 }
     </tbody>
 </table>
+
+@section scripts{
+    <script>
+        debugger
+        $('#form').submit(function (e) {
+            var inputProductName = $('#search-productName').val()
+            var inputUnitPrice = $('#search-unitPrice').val()
+            var _url = `https://localhost:7221/api/Products?$filter=indexof(ProductName, '${inputProductName}') gt -1`
+            if (inputUnitPrice != null && inputUnitPrice != undefined && inputUnitPrice!='') {
+                _url += ` and UnitPrice eq ${inputUnitPrice}`
+            }
+
+            e.preventDefault();
+            $.ajax({
+                url: _url,
+                type: 'GET',
+                error: function (response) {
+                    DisplayText('Load lại không thành công: ' + response.statusText);
+                },
+                success: function (response) {
+                    DisplayText('Thành công');
+                    $('#body').html('')
+                    // Gán dữ liệu vào biến products (nếu cần)
+                    var products = response;
+                    $('#body').html('')
+
+                    response.forEach(item => {
+                        $('#body').append(` <tr>
+                                                <td>
+                                                    ${item.productName}
+                                                </td>
+                                                <td>
+                                                    ${item.weight}
+                                                </td>
+                                                <td>
+                                                    ${item.unitPrice}
+                                                </td>
+                                                <td>
+                                                    ${item.unitsInStock}
+                                                </td>
+                                                <td>
+                                                    ${item.category.categoryName}
+                                                </td>
+                                                <td>
+                                                    <a href="/Products/Edit/${item.categoryId}">Edit</a> |
+                                                    <a href="/Products/Details/${item.categoryId}">Details</a> |
+                                                            <a href="/Products/Delete/${item.categoryId}">Delete</a>
+                                                </td>
+                                                <td>
+                                                    <a href="">Add To Cart</a>
+                                                </td>
+                                        </tr>`)
+                    })
+                }
+            });
+        });
+
+    </script>
+}

@@ -25,7 +25,7 @@ namespace eStoreAPI.Controllers
         // GET: api/Products
         [HttpGet]
         [EnableQuery]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public IActionResult GetProducts()
         {
             return Ok(_context.Products.AsQueryable());
         }

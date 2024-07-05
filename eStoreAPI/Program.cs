@@ -19,6 +19,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 
+
 builder
     .Services.AddMvc()
     .AddNewtonsoftJson(options =>
@@ -27,6 +28,10 @@ builder
     });
 
 var app = builder.Build();
+app.UseCors(builder => builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

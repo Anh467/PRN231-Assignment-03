@@ -31,10 +31,10 @@ namespace eStoreAPI.Controllers
         }
 
         // GET: api/OrderDetails/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDetail>> GetOrderDetail(int id)
+        [HttpGet("{orderid}/{productid}")]
+        public async Task<ActionResult<OrderDetail>> GetOrderDetail(int orderid, int productid)
         {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
+            var orderDetail = await _context.OrderDetails.FindAsync( orderid, productid);
 
             if (orderDetail == null)
             {
@@ -46,10 +46,10 @@ namespace eStoreAPI.Controllers
 
         // PUT: api/OrderDetails/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrderDetail(int id, OrderDetail orderDetail)
+        [HttpPut("{orderid}/{productid}")]
+        public async Task<IActionResult> PutOrderDetail(int orderid, int productid, OrderDetail orderDetail)
         {
-            if (id != orderDetail.ProductId)
+            if (productid != orderDetail.ProductId && orderid != orderDetail.OrderId)
             {
                 return BadRequest();
             }
@@ -62,7 +62,7 @@ namespace eStoreAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!OrderDetailExists(id))
+                if (!OrderDetailExists(orderid, productid))
                 {
                     return NotFound();
                 }
@@ -87,7 +87,7 @@ namespace eStoreAPI.Controllers
             }
             catch (DbUpdateException)
             {
-                if (OrderDetailExists(orderDetail.ProductId))
+                if (OrderDetailExists(orderDetail.OrderId, orderDetail.ProductId))
                 {
                     return Conflict();
                 }
@@ -97,14 +97,14 @@ namespace eStoreAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetOrderDetail", new { id = orderDetail.ProductId }, orderDetail);
+            return CreatedAtAction("GetOrderDetail", new { id =  new { orderDetail.OrderId , orderDetail.ProductId } }, orderDetail);
         }
 
-        // DELETE: api/OrderDetails/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrderDetail(int id)
+        // DELETE: api/OrderDetails/5/2
+        [HttpDelete("{orderid}/{productid}")]
+        public async Task<IActionResult> DeleteOrderDetail(int orderid, int productid)
         {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
+            var orderDetail = await _context.OrderDetails.FindAsync( orderid , productid);
             if (orderDetail == null)
             {
                 return NotFound();
@@ -116,9 +116,9 @@ namespace eStoreAPI.Controllers
             return NoContent();
         }
 
-        private bool OrderDetailExists(int id)
+        private bool OrderDetailExists(int orderid, int productid)
         {
-            return _context.OrderDetails.Any(e => e.ProductId == id);
+            return _context.OrderDetails.Any(e => e.ProductId == productid && e.OrderId == orderid);
         }
     }
 }

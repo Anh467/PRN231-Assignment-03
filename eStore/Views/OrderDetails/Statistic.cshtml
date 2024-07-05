@@ -1,0 +1,122 @@
+﻿@model IEnumerable<BusinessObject.Models.OrderDetail>
+
+@{
+    ViewData["Title"] = "Statistic";
+}
+
+<h1>Statistic</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<form id="form">
+    <div class="form-group">
+        <label for="">Start Date</label>
+        <input type="date" class="form-control" name="start" id="search-start" aria-describedby="helpId" placeholder="">
+    </div>
+    <div class="form-group">
+        <label for="">End Date</label>
+        <input type="date" class="form-control" name="end" id="search-end" aria-describedby="helpId" placeholder="">
+    </div>
+    <input id="search" type="submit" value="Search"/>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitsInStock)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Order)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Product)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="body">
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UnitPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UnitsInStock)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Order.OrderId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Product.ProductName)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { item.ProductId, item.OrderId }) |
+                @Html.ActionLink("Details", "Details", new { item.ProductId, item.OrderId }) |
+                @Html.ActionLink("Delete", "Delete", new { item.ProductId, item.OrderId })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+@section scripts{
+    <script>
+        $('#form').submit(function (e) {
+            debugger
+            e.preventDefault()
+            var frm = $('#form');
+            var start = $('#search-start').val()
+            var end = $('#search-end').val()
+            var url = `https://localhost:7221/api/Orders?$filter=OrderDate gt ${start} and OrderDate lt ${end}`
+            var body = $('#body').html('')
+            $.ajax({
+                type: "GET",
+                url: url,
+                data: frm.serialize(),
+                success: function (response) {
+                    DisplayText('Thanh cong')
+                    response.forEach((order) => {
+                        order.orderDetails.forEach((orderDetail) => {
+                            body.append(
+                                `<tr>
+                                    <td>
+                                        ${orderDetail.unitPrice}
+                                    </td>
+                                    <td>
+                                        ${orderDetail.quantity}
+                                    </td>
+                                    <td>
+                                        ${orderDetail.unitsInStock}
+                                    </td>
+                                    <td>
+                                         ${orderDetail.orderId}
+                                    </td>
+                                    <td>
+                                         ${orderDetail.product.productName}
+                                    </td>
+                                    <td>
+                                        <a href="/OrderDetails/Edit?ProductId=${orderDetail.productId}&amp;OrderId=${orderDetail.orderId}">Edit</a> |
+                                        <a href="/OrderDetails/Details?ProductId=${orderDetail.productId}&amp;OrderId=${orderDetail.orderId}">Details</a> |
+                                        <a href="/OrderDetails/Delete?ProductId=${orderDetail.productId}&amp;OrderId=${orderDetail.orderId}">Delete</a>
+                                    </td>
+                                </tr>`
+                            )
+                        })
+                    })
+                },
+                error: function (response) {
+                    DisplayText('Load lại không thành công: ' + response.statusText)
+                }
+            });
+        })
+    </script>
+}

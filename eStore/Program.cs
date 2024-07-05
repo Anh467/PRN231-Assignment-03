@@ -21,7 +21,7 @@ builder
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDBContext>();
 
-
+//builder.Services.AddCors();
 
 builder
     .Services.AddMvc()
@@ -34,6 +34,10 @@ builder
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+app.UseCors(builder => builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

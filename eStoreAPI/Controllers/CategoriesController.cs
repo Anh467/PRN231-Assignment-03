@@ -27,7 +27,7 @@ namespace eStoreAPI.Controllers
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync();
+            return Ok(_context.Categories.AsQueryable());
         }
 
         // GET: api/Categories/5
