@@ -27,7 +27,8 @@ namespace eStoreAPI.Controllers
         [EnableQuery]
         public async Task<ActionResult<IEnumerable<OrderDetail>>> GetOrderDetails()
         {
-            return Ok(_context.OrderDetails.AsQueryable());
+            var a = _context.OrderDetails.ToList().OrderByDescending(a => a.Price);
+            return Ok(a.AsQueryable());
         }
 
         // GET: api/OrderDetails/5

@@ -16,7 +16,12 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder
     .Services.AddDefaultIdentity<ApplicationUser>(options =>
-        options.SignIn.RequireConfirmedAccount = true
+        {
+            options.SignIn.RequireConfirmedAccount = true;
+            options.Lockout.AllowedForNewUsers = true;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
+            options.Lockout.MaxFailedAccessAttempts = 3;
+        }
     )
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDBContext>();

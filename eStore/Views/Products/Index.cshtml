@@ -1,7 +1,9 @@
 ﻿@model IEnumerable<BusinessObject.Models.Product>
+@using BusinessObject.Models;
 
 @{
     ViewData["Title"] = "Index";
+    var order = (Order)ViewBag.Order;
 }
 
 <h1>Index</h1>
@@ -71,7 +73,7 @@
                 <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
             </td>
             <td>
-                <a href="">Add To Cart</a>
+                <button onclick="addToCart(@order.OrderId, @item.ProductId, @item.UnitPrice, @item.UnitsInStock)">Add To Cart</button>
             </td>
         </tr>
 }
@@ -126,13 +128,40 @@
                                                             <a href="/Products/Delete/${item.categoryId}">Delete</a>
                                                 </td>
                                                 <td>
-                                                    <a href="">Add To Cart</a>
+                                                    <button onclick="addToCart(@order.OrderId, ${item.ProductId},  ${item.unitPrice}, ${item.unitsInStock})">Add To Cart</button>
                                                 </td>
                                         </tr>`)
                     })
                 }
             });
         });
-
+        
+        
+        function addToCart(orderid, productid, unitprice, unitsinstock) {
+            debugger
+            $.ajax(
+                {
+                    type:"POST",
+                    url: 'https://localhost:7221/api/OrderDetails',
+                    contentType: 'application/json',
+                    data: JSON.stringify(
+                        {
+                            "OrderId": orderid,
+                            "ProductId": productid,
+                            "UnitPrice": unitprice,
+                            "Quantity": 1,
+                            "UnitsInStock": unitsinstock
+                        }
+                    ),
+                    dataType: 'json',
+                    success: function (data) {
+                        DisplayText("Thêm sản phẩm thành công")
+                    },
+                    error: function () {
+                        DisplayText("Thêm sản phẩm thành công")
+                    },
+                }
+            )
+        }
     </script>
 }

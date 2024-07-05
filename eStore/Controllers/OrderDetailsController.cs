@@ -101,14 +101,17 @@ namespace eStore.Controllers
         }
 
         // GET: OrderDetails/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? orderid, int? productid)
         {
-            if (id == null)
+            if (orderid == null || productid == null)
             {
                 return NotFound();
             }
 
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
+            var orderDetail = await _context.OrderDetails
+                .Include(o => o.Order)
+                .Include(o => o.Product)
+                .FirstOrDefaultAsync(m => m.ProductId == productid && m.OrderId == orderid);
             if (orderDetail == null)
             {
                 return NotFound();
@@ -123,9 +126,9 @@ namespace eStore.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,ProductId,UnitPrice,Quantity,UnitsInStock")] OrderDetail orderDetail)
+        public async Task<IActionResult> Edit(int OrderId, [Bind("OrderId,ProductId,UnitPrice,Quantity,UnitsInStock")] OrderDetail orderDetail)
         {
-            if (id != orderDetail.ProductId)
+            if (OrderId != orderDetail.ProductId)
             {
                 return NotFound();
             }

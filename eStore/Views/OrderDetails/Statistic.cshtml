@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "Statistic";
+    decimal sum = 0;
+    foreach(var item in Model)
+    {
+        sum += item.Price;
+    }
 }
 
 <h1>Statistic</h1>
@@ -38,6 +43,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Product)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -60,12 +68,32 @@
                 @Html.DisplayFor(modelItem => item.Product.ProductName)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
                 @Html.ActionLink("Edit", "Edit", new { item.ProductId, item.OrderId }) |
                 @Html.ActionLink("Details", "Details", new { item.ProductId, item.OrderId }) |
                 @Html.ActionLink("Delete", "Delete", new { item.ProductId, item.OrderId })
             </td>
         </tr>
 }
+        <tr>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+            <td id="sum">
+                @sum
+            </td>
+            <td>
+            </td>
+        </tr>
     </tbody>
 </table>
 @section scripts{
@@ -83,9 +111,11 @@
                 url: url,
                 data: frm.serialize(),
                 success: function (response) {
+                    var sum = 0;
                     DisplayText('Thanh cong')
                     response.forEach((order) => {
                         order.orderDetails.forEach((orderDetail) => {
+                            sum += orderDetail.price
                             body.append(
                                 `<tr>
                                     <td>
@@ -104,6 +134,9 @@
                                          ${orderDetail.product.productName}
                                     </td>
                                     <td>
+                                         ${orderDetail.price}
+                                    </td>
+                                    <td>
                                         <a href="/OrderDetails/Edit?ProductId=${orderDetail.productId}&amp;OrderId=${orderDetail.orderId}">Edit</a> |
                                         <a href="/OrderDetails/Details?ProductId=${orderDetail.productId}&amp;OrderId=${orderDetail.orderId}">Details</a> |
                                         <a href="/OrderDetails/Delete?ProductId=${orderDetail.productId}&amp;OrderId=${orderDetail.orderId}">Delete</a>
@@ -112,6 +145,24 @@
                             )
                         })
                     })
+                    body.append(`
+                             <tr>
+                                <td>
+                                </td>
+                                <td>
+                                </td>
+                                <td>
+                                </td>
+                                <td>
+                                </td>
+                                <td>
+                                </td>
+                                <td id="sum">
+                                    ${sum}
+                                </td>
+                                <td>
+                                </td>
+                            </tr>`)
                 },
                 error: function (response) {
                     DisplayText('Load lại không thành công: ' + response.statusText)

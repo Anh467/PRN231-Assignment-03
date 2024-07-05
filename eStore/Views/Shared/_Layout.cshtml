@@ -36,12 +36,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="OrderDetails" asp-action="Index">OrderDetail</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Category</a>
-                        </li>
                         @if(isAdmin){
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="OrderDetails" asp-action="Statistic">Category</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="OrderDetails" asp-action="Statistic">Statistic</a>
                             </li>
                         }
                     </ul>

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using BusinessObject.Models;
 using DataAccess.DataBase;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using eBookStore.Utils;
 
 namespace eStore.Controllers
 {
@@ -15,17 +17,40 @@ namespace eStore.Controllers
     public class ProductsController : Controller
     {
         private readonly ApplicationDBContext _context;
+        private readonly string _url;
 
         public ProductsController(ApplicationDBContext context)
         {
             _context = context;
+            this._url = "https://localhost:7221/api/Products";
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var applicationDBContext = _context.Products.Include(p => p.Category);
-            return View(await applicationDBContext.ToListAsync());
+            Order? order = null;
+            var userid = User.Claims.Where(a => a.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
+            var orders = await ApiHandler.DeserializeApiResponse<IEnumerable<Order>>("https://localhost:7221/api/Orders", HttpMethod.Get);
+            if(orders.Count() == 0)
+            {
+                order = await ApiHandler.DeserializeApiResponse<Order>("https://localhost:7221/api/Orders", HttpMethod.Post, new Order()
+                {
+                    Freight = 0,
+                    OrderDate = DateTime.Now,
+                    MemberId = userid,
+                    RequiredDate = DateTime.Now,
+                    ShippedDate = DateTime.Now, 
+                });
+            }
+            else
+            {
+                order = orders.OrderByDescending(a=> a.OrderDate).FirstOrDefault();
+            }
+
+
+            var products = await ApiHandler.DeserializeApiResponse<IEnumerable<Product>>(this._url, HttpMethod.Get);
+            ViewBag.Order = order;
+            return View(products);
         }
 
         // GET: Products/Details/5

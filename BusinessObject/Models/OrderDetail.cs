@@ -31,5 +31,9 @@ namespace BusinessObject.Models
 
         [ForeignKey(nameof(ProductId))]
         public virtual Product? Product { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Total price")]
+        public decimal Price {  get => UnitPrice * Quantity; }
     }
 }
